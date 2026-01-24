@@ -17,15 +17,33 @@ function App() {
 
 
   const [visitCount, setVisitCount] = useState(null);
+  const [generatedCount, setGeneratedCount] = useState(50); // Start from 50
 
   const qrRef = useRef(null);
 
   useEffect(() => {
+    // Visit Counter
     fetch('https://api.counterapi.dev/v1/trulyfreeqr-app/visits/up')
       .then(res => res.json())
       .then(data => setVisitCount(data.count))
       .catch(err => console.error("Failed to fetch visit count", err));
+
+    // Generated Counter (Read Only initially)
+    fetch('https://api.counterapi.dev/v1/trulyfreeqr-app/generated/')
+      .then(res => {
+        if (!res.ok) throw new Error('Not found');
+        return res.json();
+      })
+      .then(data => setGeneratedCount(data.count + 50))
+      .catch(() => setGeneratedCount(50)); // Default to 50 if not found
   }, []);
+
+  const handleGeneration = () => {
+    fetch('https://api.counterapi.dev/v1/trulyfreeqr-app/generated/up')
+      .then(res => res.json())
+      .then(data => setGeneratedCount(data.count + 50))
+      .catch(err => console.error("Failed to increment generated count", err));
+  };
 
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
@@ -70,6 +88,8 @@ function App() {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url); // Clean up memory
+
+        handleGeneration();
       }, 'image/png');
     }).catch(err => {
       console.error("Download failed", err);
@@ -92,6 +112,8 @@ function App() {
     link.download = 'qrcode.svg';
     link.href = URL.createObjectURL(blob);
     link.click();
+
+    handleGeneration();
   };
 
   const copyToClipboard = () => {
@@ -103,6 +125,7 @@ function App() {
           const data = [new ClipboardItem({ 'image/png': blob })];
           navigator.clipboard.write(data);
           alert('Copied to clipboard!');
+          handleGeneration();
         } catch (err) {
           console.error(err);
           alert('Failed to copy.');
@@ -233,6 +256,7 @@ function App() {
       <footer style={{ textAlign: 'center', padding: '2rem', color: '#666', fontSize: '0.9rem' }}>
         <p>
           {visitCount !== null ? `Total Visits: ${visitCount.toLocaleString()} • ` : ''}
+          Total Generated: {generatedCount.toLocaleString()} •
           © {new Date().getFullYear()} The Truly Free QR Generator
         </p>
       </footer>
