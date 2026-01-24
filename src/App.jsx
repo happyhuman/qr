@@ -254,10 +254,13 @@ function App() {
       </main>
 
       <footer style={{ textAlign: 'center', padding: '2rem', color: '#666', fontSize: '0.9rem' }}>
-        <p>
+        <p style={{ marginBottom: '0.5rem' }}>
           {visitCount !== null ? `Total Visits: ${visitCount.toLocaleString()} • ` : ''}
-          Total Generated: {generatedCount.toLocaleString()} •
+          Total Downloads: {generatedCount.toLocaleString()} •
           © {new Date().getFullYear()} The Truly Free QR Generator
+        </p>
+        <p style={{ fontSize: '0.8rem', opacity: 0.8 }}>
+          Developed by Shahin Saadati
         </p>
       </footer>
     </div>
